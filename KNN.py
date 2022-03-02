@@ -19,7 +19,7 @@ class KNN:
 
         Paramètres
         ---------------------
-        :metric: {'Euclidean', 'Manhattan', 'Minkowski'}
+        metric: {'Euclidean', 'Manhattan', 'Minkowski'}
             methode à utiliser pour calculer la distance 
         '''
 
@@ -97,14 +97,6 @@ class KNN:
             proba.append(np.count_nonzero(ppv == i, axis=1)/k)
 
         proba = np.array(proba).T
-
-        # proba_A = np.count_nonzero(ppv == 1, axis=0)/k
-
-        # proba_B = np.count_nonzero(ppv == 2, axis=0)/k
-
-        # proba_C = np.count_nonzero(ppv == 3, axis=0)/k
-
-        # proba = np.array([proba_A, proba_B, proba_C])
 
         y_pred = np.argmax(proba, axis=1)+1
 
