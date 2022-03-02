@@ -3,7 +3,7 @@
 \usepackage[T1]{fontenc}
 
 \usepackage{natbib}
-\usepackage[vmargin=3cm,left=4cm,right=4cm]{geometry}
+\usepackage[vmargin=4cm,left=4cm,right=4cm]{geometry}
 
 \usepackage{amsmath}
 
@@ -95,7 +95,7 @@
 %----------------------------------------------------------------------------------------
 \HRule \\[0.4cm]
 \vspace{1cm}
-{ \huge \bfseries Premier modèle IA}\\ % Title of your document
+{ \huge \bfseries Premier modèle KNN}\\ % Title of your document
 \vspace{1cm}
 \HRule \\[1cm]
  
@@ -135,377 +135,319 @@ Fabio \textsc{Cassiano}
 
 \tableofcontents
 
-\newpage
+\vspace{1cm}
 
-\section{Rappel sur la régression linéaire}
-
-La régression linéaire est une méthode statistique qui a pour objectif de trouver une relation entre une variable cible (\textit{target}) à partir d'une variable dite descriptive. La régression linéaire peut-être appliqué sur différents types de modèles qui vont être abordés dans les sous-section ci-dessous. 
-
-\subsection{Modèle simple}
-
-Le modèle linéaire simple, est un modèle basé sur une fonction affine. Cette fonction a pour équation mathématique :
-
-\begin{center}
-    $f(x) = ax + b$
-\end{center}
-
-\noindent Dans cette équation $f(x)$ représente la valeur cible, soit celle qu'il faut prédire. La valeur $x$ correspond à la variable descriptive à partir de laquelle on pourra obtenir $f(x)$. Les valeurs a et b correspondent aux coefficients, qui représentent respectivement la pente et l'ordonnée à l'origine. 
-
-\subsection{Modèle multiple}
-
-Le modèle linéaire multiple est une extension du modèle linéaire simple, qui permet la prédiction du variable cible à partir de plusieurs variables descriptives. Ce modèle a pour équation :
-
-\begin{center}
-    $f(x) = ax_{1} + bx_{2} + c $
-\end{center}
-
-\noindent Tout comme pour l'équation précédente $f(x)$ représente la valeur cible, soit celle qu'il faut prédire. Les valeur $x_{1}$ jusqu'à $x_{n}$ représentent aux différentes variables descriptives de notre jeu de données.
-
-\subsection{Modèle polynomiale}
-
-Concernant le modèle polynomiale, il correspond à une équation à une inconnue, avec un polynôme de degré $n$. Mathématiquement cela se traduit de la manière suivante :
-
-\begin{center}
-    $f(x) = ax^{n} + bx^{n-1} + c $
-\end{center}
-
-\noindent Par exemple pour un polynomial de degré 2 l'équation est :
-
-\begin{center}
-    $f(x) = ax^{2} + bx + c $
-\end{center}
+\listoffigures
 
 \newpage
 
-\section{Fonction sous python}
 
-\subsection{Définition de la fonction \textit{model()}}
+\section{Questionnaire de personnalité}
 
-Les différents modèles présentés précédemment peuvent être retranscrit sous python. Pour facilité leur modélisation on peut les écrire modèles sous forme matricielle, ce qui ce résumera entre un produit matricielle entre deux matrices.
+Un test de personnalité a été mis au point sous python, afin de déterminer la personnalité des participants. Chaque personne doit répondre à 10 questions afin d'obtenir un score, sur lequel sera basé la mise en relation avec une personnalité.\\
 
-\subsubsection{Modèle simple}
+Notre objectif ici est d'essayer de prédire la personnalité d'une personne en fonction de ses réponses aux différentes questions, en utilisant un modèle \textit{K-nearest neighboors} (KNN) sans estimer de score. Pour ce faire la première étape est de se constituer un jeu de données. Plusieurs personnes ont ainsi réalisé les questionnaires 10 fois consécutives générant ainsi un fichier \textit{csv} par participant.
 
-\noindent L'écriture matricielle du modèle linéaire simple est donc la suivante :
-\begin{align*}
-    F = X \cdot \theta
-\end{align*}
+\section{Création du jeu de données (DataSet)}
 
-\noindent avec, 
-$$X = \begin{bmatrix}
-    x^{(1)} & 1 \\
-    \vdots & \vdots \\
-    x^{(n)} & 1
-\end{bmatrix}$$
+La création du DataSet se fait en réalisant la concaténation des différents fichier \textit{csv}, afin d'avoir un DataSet suffisament conséquent. Cette étape est réalisé à l'aide de la fonction \textit{create\_DataSet()}. Cette fonction parcours le dossier contenant tout les fichiers \textit{csv}, chacun d'entre eux est ensuite lu avec la fonction \textit{read\_csv()} du module \textbf{pandas}, le contenu est ajouté à la liste \textit{data\_list} qui est ensuite concaténé afin de renvoyer le DataSet (\textit{data}). 
 
-\noindent et, 
-$$\theta = \begin{bmatrix}
-    a \\
-    b
-\end{bmatrix}$$
-
-\noindent où $X$ est la matrice qui contient la variable descriptive $x$, sous forme de colonne. Une colonne composé uniquement de $1$ est également inclut dans $X$, ce qui correspond au multiplicateur du coefficient \textit{b}. Enfin la matrice $\theta$ regroupe les coefficients \textit{a} et \textit{b}.
-
-\subsubsection{Modèle multiple}
-
-Pour le modèle multiple, la forme matricielle est la même que pour le modèle simple. Il suffit d'adapter la matrice $X$ en ajoutant les différentes features que l'on souhaite étudié, et ajouter à la matrice $\theta$ le nombre de coefficient correspondant. Ce qui nous donne :
-
-$$X = \begin{bmatrix}
-    x_{1}^{(1)} & x_{2}^{(1)} & 1 \\
-    \vdots & \vdots & \vdots\\
-    x_{1}^{(n)} & x_{2}^{(n)} & 1
-\end{bmatrix}$$
-
-\subsubsection{Modèle polynomiale}
-
-De même pour le modèle polynomiale, il suffit d'adapter la matrice $X$ et $\theta$. Ce qui nous donne :
-
-$$X = \begin{bmatrix}
-    x^{2 (1)} & x^{(1)} & 1 \\
-    \vdots & \vdots & \vdots \\
-    x^{2 (n)} & x^{(n)} & 1
-\end{bmatrix}$$
-
-\subsubsection{Code python}
-\noindent Au niveau code cela se traduit facilement, il suffit de mettre en place une fonction \textit{model()}, avec deux paramètres d'entrées, nos matrices $X$ et $\theta$.\\
+\subsection{Code Python - \textit{create\_DataSet()}}
 
 \begin{lstlisting}[language=Python]
-# Création de la fonction modélisant le modèle linéaire F
-def model(X, theta):
-    return X.dot(theta)
-\end{lstlisting}
+def create_DataSet():
+    file_list = os.listdir("./DataSet/")
+    data_list = []
+    for i in file_list:
+        data_list.append(pd.read_csv("./DataSet/{}".format(i)))
 
-\subsection{Définition de la fonction \textit{fonction\_cout()}}
-La fonction de coût permet de mesurer les erreurs entre le modèle calculé et le jeu de données. La formule mathématiquement de cette fonction, pour le linéaire simple, s'écrit de la manière suivante : 
-
-\begin{align*}
-    J(a,b) = \dfrac{1}{2m}\sum_{i=1}^{m}(ax + b - y)^2
-\end{align*}
-
-\noindent On peut également l'écrire sous forme matricielle, ce qui la généralise pour les autres modèles présenté précédemment. Ce qui donne :
-
-\begin{align*}
-    J(\theta) = \dfrac{1}{2m}\sum(X.\theta - y)^2
-\end{align*}
-
-\subsubsection{Code python}
-
-\noindent Pour implémenter cette fonction on définit une fonction \textit{fonction\_cout()}, qui prend comme paramètres les matrices $X$, $Y$ (la \textit{"target"}), et $\theta$. La fonction fera directement appel à la fonction précédente \textit{model()}.
-
-\begin{lstlisting}[language=Python]
-# Création de la fonction permettant l'estimation de la fonction de coût
-def fonction_cout(X, Y, theta):
-    m = len(X) # taille de la matrice X
-    return (1/(2*m))* np.sum(np.power((model(X, theta) - Y), 2))
-\end{lstlisting}
-
-\subsection{Définition de la fonction \textit{gradient()}}
-Le gradient permet de caractérisé la variabilité d'une fonction en un point donné. Pour ce faire on calcule les dérivées partielles. Le gradient de notre fonction coût correspond donc aux dérivées partielle selon \textit{a} et selon \textit{b}. Ce qui se traduit par :
-\begin{align*}
-    \dfrac{\delta J(a,b)}{\delta a} = \dfrac{1}{m}\sum(ax + b - y) \\
-    \dfrac{\delta J(a,b)}{\delta b} = \dfrac{1}{m}\sum(ax + b - y)
-\end{align*}
-
-\noindent De même ces équations peuvent s'écrire sous forme matricielle :
-
-\begin{align*}
-    \dfrac{\delta J(\theta)}{\delta \theta} = \dfrac{1}{m}X^{T}(X.\theta - y)
-\end{align*}
-
-\noindent Où $X^{T}$ correspond à la transposé de $X$.
-
-\subsubsection{Code python}
-
-Le calcul de gradient est implémenté sous une fonction \textit{gradient()}, prenant en paramètres d'entrées  $X$, $Y$, et $\theta$. La fonction fera directement appel à la fonction précédente \textit{model()}.\\
-
-\begin{lstlisting}[language=Python]
-# Création de la fonction permettant l'estimation des gradient
-def gradient(X, Y, theta):
-    m = len(X)
-    return (1/m) * X.T.dot((model(X, theta) - Y))
-\end{lstlisting}
-
-\subsection{Définition de la fonction de descente de }
-
-Maintenant que les principales fonctions principal ont été définit on peut les regrouper dans une fonction \textit{descente\_gradient()}. Cette fonction a pour objectif de faire évoluer notre modèle afin de minimiser son erreur. Cette fonction prend donc en paramètres nos matrices $X$, $Y$ et $\theta$, ainsi qu'un paramètre $alpha$ et un paramètre $n\_iteration$. Le paramètre $alapha$ correspond au pas d'apprentissage (\textit{learning rate}) de notre modèle, c'est le facteur qui joue un rôle dans la ré-estimation du gradient. Le dernier paramètre correspond au nombre d'itération, c'est à dire le nombre de fois que nous souhaitons ré-estimer notre modèle. Dans la définition de notre fonction nous avons établis des valeurs par défaut pour ces deux paramètres, qui sont respectivement de $1e^{-3}$ et $30$.\\
-
-
-\noindent Dans cette fonction il a été décidé de commencer par initialiser deux listes \textit{F\_plot} et \textit{J} qui stockeront respectivement tous les modèles calculés par la suite et leurs valeurs de coût. \\
-
-\noindent A l'étape suivante on ré-estime un nouveau $\theta$, que l'on utilise pour calculer le nouveau modèle que l'on stocke dans \textit{F\_plot}. On calcul enfin l'erreur du modèle grâce à \textit{fonction\_cout()}, que l'on stocke dans \textit{J}. On ré-itère ensuite ces calculs autant de fois que le nombre d'itération définit. Et pour finir on renvoi les variables \textit{J}, \textit{F\_plot}, ainsi que les derniers coefficient estimé (la matrice $\theta$).\\
-
-\begin{lstlisting}[language=Python]
-def descente_gradient(X, Y, theta, alpha=1e-3, n_iterations=30):
-    # Variable permetant de stocker tout les modèles pour les représenter facilement
-    F_plot = [] 
-    J = [] # Variable pour stocker le coût
+    data = pd.concat(data_list)
     
-    for i in range(n_iterations):
-        # Re-estimation de thêta
-        theta = theta - alpha*gradient(X, Y, theta)
-        # Calcul du model avec le nouveau thêta
-        F_plot.append(model(X, theta)) 
-        # Calcul du coût du modèle
-        J.append(fonction_cout(X, Y, theta)) 
+    # # -------------------------------------------------------------
+    # # ou pour enregistrer un nouveau csv :
+    # data.to_csv( "data.csv", index=False, encoding='utf-8-sig')
+    # # -------------------------------------------------------------
+
+    return data
     
-    return J, theta, F_plot
 \end{lstlisting}
 
-\subsection{Définition de la fonction \textit{coeff\_determination()}}
+\section{Préparation du jeu de données}
 
-\noindent Le coefficient de détermination ($R^{2}$) permet d'évaluer le modèle estimé. Sa formule mathématique est la suivante :
+La préparation du jeu de données est l'étape la plus importante, elle conditionne l'apprentissage du modèle ce qui impactera par conséquent les performances de ce dernier.\\
+\noindent Afin de préparer le DataSet au mieux on réalise 3 étapes essentiel :
+\begin{enumerate}
+    \item Suppression des valeurs erronés.
+    \item Remplacement des valeurs manquantes.
+    \item Harmonisation des données.
+\end{enumerate}
 
-\begin{align*}
-    R^{2} = 1 - \dfrac{\sum(y - F)^{2}}{\sum(y - \bar{y})^{2}}
-\end{align*}
+\subsection{Suppression des valeurs erronés}
 
-\noindent Pour notre implémentassion en python la fonction prendra en paramètre notre matrice $Y$, ainsi que la prédiction de notre modèle. 
+Après avoir analysé le code du questionnaire de personnalité, il a été constaté que les utilisateurs ne sont pas limité dans leur réponse, c'est à dire qu'il peuvent répondre avec des valeurs non pris en compte dans le calcul du score. Il est donc essentiel, pour l'entraînement du modèle, de supprimer ces valeurs.\\
+
+\noindent Pour ce faire, les valeurs valides ont été identifiées. Dans notre projet les valeurs sont les suivantes : \textit{"a", "b", "c", 1, 2, 3}. Toutes les autres valeurs sont donc identifier et remplacer pars des \textit{NaN}, afin d'être traiter dans l'étape suivante.
+
+\subsection{Remplacement des valeurs manquantes}
+
+Il a également été remarqué dans le code du questionnaire, que l'utilisateur peut laisser les champs vide, ce qui engendre des valeurs manquantes (\textit{NaN}) dans le jeu de données. Ces données doivent être traiter afin que le modèle puisse être entraîner. Pour ce faire deux solutions sont possibles :
+
+\begin{itemize}
+    \item Supprimer les observations contenant des données manquante.
+    \item Remplacer les données par une autre valeur (moyenne, min, max, mode, etc..)
+\end{itemize}
+
+Dans notre cas, la suppression des données n'est pas envisageable au vu du nombre d'observation qui constitue notre jeu de données. Cela aurait pour impact de réduire fortement notre DataSet, ce qui empêcherait notre modèle d'être entraîner correctement.\\
+
+\noindent Les données qui composent nos DataSet, sont des données de type qualitative. Il a donc été décidé de remplacer les données manquantes par le mode de chaque \textit{features}. Il aurait également été possible de remplacer les \textit{NaN}, par la valeur \textit{"b" ou 2}, qui sont les entrées qui n'impacte pas le calcul du score dans le code du questionnaire.
+
+\subsection{Encodage des données}
+
+La dernière étape a effectuer pour finir la préparation du DataSet est l'encodage des données, qui consiste à harmoniser les différentes \textit{features}. Pour ce faire plusieurs méthodes sont possible, il est possible d'encoder les données avec la fonction \textit{OneHotEncoder()}, de la librairie \textbf{Sklearn}, ce qui encodera les valeurs de manière binaires. Une autre possibilité étant de remplacer les valeurs \textit{"a", "b", "c"} par leurs correspondance numérique \textit{1, 2, 3}. Cette dernière solution est celle pour laquelle nous avons opté.\\
+
+\noindent Enfin pour finir, le DataSet est divisé en un jeu d'entraînement (\textit{X\_train}) et un jeu de test (\textit{X\_train}), cela à l'aide de la fonction \textit{train\_test\_split()} de la librairie \textbf{sklearn}. Le DateSet est maintenant près pour entraîner notre modèle.
+
+\section{Développement et entraînement d'un modèle KNN}
+
+\subsection{Principe du KNN}
+
+Le modèle que est développé ici, est celui des K plus proche voisin (KNN). Ce modèle a pour principe de calculer les distances entre une valeurs à tester avec les valeurs du jeu d'entraînement. Les k-distances les plus faible sont ensuite sélectionné, k étant le nombre de valeurs choisis lors de la création du modèle. La valeur testé est ensuite associé au label majoritaire présent dans les k plus faibles distances (voir Fig. \ref{fig:KNN_schema}.\\
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{images/KNN_schema.png}
+    \caption{Représentation du principe du modèle de KNN - \textit{source : https://www.datacamp.com}.}
+    \label{fig:KNN_schema}
+\end{figure}
+
+Les distances entre deux valeurs peuvent se calculer de différentes façon (voir Fig. \ref{fig:dist}). Dans notre étude nous nous intéresserons au méthode suivante : la distance euclidienne (eq. \ref{eq:eu}), la distance de manhattan (eq. \ref{eq:man}), ou encore la distance de minkowski (eq. \ref{eq:min}).\\
+
+\begin{equation}\label{eq:eu}
+    distance_{euclidienne} = \sqrt{\sum_{i=1}^{n} (x_{i} - y_{i})^{2}}\\
+\end{equation}
+
+\begin{equation}\label{eq:man}
+    distance_{manhattan} = \sum_{i=1}^{n} |x_{i} - y_{i}|\\
+\end{equation}
+
+\begin{equation}\label{eq:min}
+    distance_{minkowski} = \sqrt[\leftroot{}\uproot{}p]{\sum_{i=1}^{n} (x_{i} - y_{i})^{p}} 
+\end{equation}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{images/distance.png}
+    \caption{Modélisation du calcul des différentes distances - \textit{source : \href{https://tuhinmukherjee74.medium.com/different-types-of-distances-used-in-machine-learning-explained-550e2979752c}{tuhinmukherjee74 sur medium}}.}
+    \label{fig:dist}
+\end{figure}
+
+Dans cette partie nous entraînons deux modèles KNN, le premier étant celui que nous avons développé manuellement (from scratch), et le second est celui présent dans la librairie \textbf{sklearn}, le modèle \textit{KNeighborsClassifier()}.
+
+\newpage
+
+\subsection{KNN from scratch}
+
+Le modèle KNN from scratch a été développé sous la forme d'une \textit{class}. Cette \textit{class \textbf{KNN()}} est composé de différentes méthodes permettant d'entraîner le modèle, mais égalment de calculer les distances, afin d'effectuer une prédiction, et même de calculer l'\textit{accuracy} de la prédiction. Ce modèle s'utilise avec des données de type \textit{array}, contenant uniquement des \textit{integer}.\\
+
+\noindent Ce modèle s'utilise de la manière suivante :
+
+\begin{enumerate}
+    \item Initialisation d'une instance (création d'un modèle) : cela permet d'initialiser le modèle avec différentes propriétés.
+    \item Entraîner le modèle avec le jeu d'entraînement (\textit{X\_train}), les labels correspondant (\textit{y\_label}) et la méthode de calcul de distance désirée (\textit{metric}).
+    \item Prédiction des labels du jeu de test (\textit{X\_test}).
+    \item Estimation de l'\textit{accuracy} du modèle en comparant les vrai labels du jeu test (\textit{y\_test}) à celles prédites.
+\end{enumerate}
+
+\subsubsection{Code Python - \textit{class} KNN()}
 
 \begin{lstlisting}[language=Python]
-def coeff_determination(y, F):
-    return 1 - np.sum((y - F)**2) / np.sum((y - y.mean())**2) 
+class KNN:
+
+    def __init__(self):
+        self.__label_train = []
+        self.__X_train = []
+        self.__metric = 'euclidean'
+        self.__p = []
+        self.__label = []
+        self.__confusion_matrix = []
+        self.__format_model = {}
+
+    
+    def distance(self, **kwargs):
+        '''
+        distance permet de calculer la distance d'un échantillon par rapport aux autres.
+
+        Paramètres
+        ---------------------
+        metric: {'Euclidean', 'Manhattan', 'Minkowski'}
+            methode à utiliser pour calculer la distance 
+        '''
+
+        X_test = kwargs.get("X_test", None)
+
+        if self.__metric.lower() == 'euclidean':
+            if len(X_test) == 1:
+                d = np.sqrt(np.sum((self.__X_train-X_test)**2, axis=1))
+                return np.array(d)
+            else:
+                d = []
+                for x in X_test:
+                    d.append(np.sqrt(np.sum((self.__X_train-x)**2, axis=1)))
+                return np.array(d)
+        elif self.__metric.lower() == 'manhattan':
+            if len(X_test) == 1:
+                d = np.sqrt(np.sum(abs(self.__X_train-X_test), axis=1))
+                return np.array(d)
+            else:
+                d = []
+                for x in X_test:
+                    d.append(np.sqrt(np.sum(abs(self.__X_train-x), axis=1)))
+                return np.array(d)
+        elif self.__metric.lower() == 'minkowski':
+            if len(X_test) == 1:
+                d = pow(np.sum(abs(self.__X_train-X_test)**self.__p, axis=1), 1/self.__p)
+                return np.array(d)
+            else:
+                d = []
+                for x in X_test:
+                    d.append(pow(np.sum(abs(self.__X_train-x)**self.__p, axis=1), 1/self.__p))
+                return np.array(d)
+        else:
+            raise ValueError(f"metric prend en uniquement comme valeur 'euclidean', 'manhattan', ou 'minkowski' (saisie {self.__metric})")
+
+
+    def target_format(self, Y_train):
+        self.__label = Y_train.sort_values().unique()
+
+        cpt = 1
+        for k in self.__label:
+            self.__format_model[k] = cpt
+            cpt +=1
+        
+        target_formated = Y_train.replace(self.__format_model).values
+
+        return target_formated
+
+
+    def train(self, X_train, label_train, **kwargs):
+        self.__p = kwargs.get('p', 2)
+        self.__metric = kwargs.get("metric", "euclidiean")
+        self.__label_train = self.target_format(label_train) # Formatage des labels
+        self.__X_train = X_train
+
+
+    def prediction(self, X_test, k=5):
+        d = self.distance(X_test = X_test)
+
+        if d.ndim == 1:
+            d = d.reshape(1,-1)
+
+        # ind = np.argsort(d,axis=0)[:k,:] # k : nombre de voisin
+        ind = np.argsort(d,axis=1)[:,:k] # k : nombre de voisin
+
+        ppv = []
+        for i in ind:
+            ppv.append(self.__label_train[i]) # .mode()
+        
+        # ppv = list(map(list, zip(*ppv))) # transposé liste
+        ppv = np.array(ppv)
+
+        proba = []
+        for i in range(1,3+1):
+            proba.append(np.count_nonzero(ppv == i, axis=1)/k)
+
+        proba = np.array(proba).T
+
+        y_pred = np.argmax(proba, axis=1)+1
+
+        return y_pred
+
+    def accuracy(self, y_test, y_pred, **kwargs):
+        
+        y_test = y_test.replace(self.__format_model).values
+        self.__confusion_matrix = confusion_matrix(y_test, y_pred)
+        error_rate = (1 - np.trace(self.__confusion_matrix)/np.sum(self.__confusion_matrix))*100
+        accuracy = 100-error_rate
+
+        if kwargs.get('resume', False):
+            self.resume(accuracy, error_rate)
+
+
+        return accuracy, error_rate
+
+    
+    def resume(self, accuracy, error_rate):
+        if not(accuracy):
+            print("Le calcul de l'accuracy est nécessaire, utiliser la fonction d'instance pour la calculer")
+        else:
+    
+            print("\n ======  Résumé des métrique  =====\n")
+            print("----------------------")
+            print("Matrice de confusion")
+            print(self.__confusion_matrix)
+
+            print("\n=======================")
+            print(f"\nAccuracy : {accuracy}")
+            print(f"\nTaux d'erreur : {error_rate}")
+            print("----------------------")
+
+            cpt = 0
+            for l in self.__label:
+                P = self.__confusion_matrix[cpt,cpt]/self.__confusion_matrix.sum(axis=0)[cpt]
+                R = self.__confusion_matrix[cpt,cpt]/self.__confusion_matrix.sum(axis=1)[cpt]
+
+                cpt += 1
+                print(f"\nPrécision classe {l} : {P}")
+                print(f"\nSensibilité classe {l} : {R}")
+                print("----------------------")
+
+            print("\n=======================\n")
+    
 \end{lstlisting}
 
-\newpage
+\subsubsection{Résultats obtenus}
 
-\section{Résultats des fonctions implémentés manuellement}
-\subsection{Modèle simple}
-
-Le premier jeu de données (ou \textit{DataSet}) sur lequel nous allons tester nos fonctions, est le DataSet "\textit{reg\_simple.csv}" qui regroupe les notes obtenus par des étudiants selon le nombres d'heure de révision effectué. Visuellement il est possible de constater que le DataSet a une tendance linéaire.\\
-
-\noindent Après avoir préparer nos matrices $X$, $Y$ et $\theta$, on appelle notre fonction \textit{descente\_gradient()}, en gardant l'\textit{alpha} et le \textit{n\_iteration} par défaut. Il est maintenant possible de tracer l'évolution de notre fonction (voir Fig. \ref{fig:JMLS}). 
+Afin d'estimer la valeur de k et la métrique les plus optimals pour notre application, l'accuracy a été calculer pour chaque métrique en faisant varier la valeur \textit{k} de 1 à 3O (voir Fig. \ref{fig:KNN_scratch}). D'après les résultats obtenus les paramètres les plus adaptés à notre application sont, la métrique de  \textit{manhattan}, et un \textit{k} de 3 ou 4.\\
 
 \begin{figure}[!htbp]
     \centering
-    \includegraphics[width=\textwidth]{Rapport/images/cout_MLS.png}
-    \caption{Évolution des résultats de la fonctions de coût au fur et à mesure des itérations.}
-    \label{fig:JMLS}
+    \includegraphics[width=\textwidth]{images/k_estimation.png}
+    \caption{Évaluation de l'\textit{accuracy} du modèle from scratch en fonction du nombre de \textit{k}, pour les trois méthodes de calcul de distance.}
+    \label{fig:KNN_scratch}
 \end{figure}
 
-Comme on peut le voir sur ce graphique, notre coût atteint un plateau autour de la 10ème itération, ce qui signifie que notre modèle n'est plus optimisé au-delà. Il aurait donc été possible de ne réaliser que 10 itérations.\\
-
-Il est également possible de représenter l'évolution de notre modèle (voir Fig. \ref{fig:evo_MLS}), grâce à notre varible \textit{F\_plot}. Ce qui nous permet de voir l'amélioration de notre modèle au fur et à mesure des itérations.\\
+Le paramètre \textit{p} pour la métrique \textit{minkowski}, a quant-à lui était étudié séparément afin de ne pas surcharger la représentation graphique. Cette étude a été réalisé avec un \textit{p} variant de 3 à 5. D'après les résultats obtenus la valeur \textit{p=3}, le modèle obtient de meilleur \textit{accuracy} (86\%) pour de k valant 5, 6 et 8.
 
 \begin{figure}[!htbp]
     \centering
-    \includegraphics[width=\textwidth]{Rapport/images/evo_MLS.png}
-    \caption{Représentation de l'évolution du modèle au fur et à mesure des itérations.}
-    \label{fig:evo_MLS}
-\end{figure}
-
-Notre modèle peut être évalué par le coefficient de détermination, pour ce faire on utilise la fonction \textit{coeff\_determination}. Pour ce premier modèle notre résultat $R^{2}$ est de \textbf{0.97}, ce qui est un très bon score car on se rapproche de 1.
-
-\subsection{Modèle multiple}
-
-Nous pouvons également utilisé nos fonctions dans le but d'estimer un modèle multiple. Pour ce faire le DataSet \textit{boston\_house\_price.csv} est utilisé. Dans un premier temps on sélectionne les deux variables descriptive les plus corrélées avec notre target. les deux variables sélectionnées sont \textit{LSTAT} et \textit{RM} (voir Fig. \ref{fig:boston_data}).\\
-
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=\textwidth]{Rapport/images/data_MLM.png}
-    \caption{Représentation de notre target en fonction des deux variables sélectionnés \textit{LSTAT} et \textit{RM}}
-    \label{fig:boston_data}
-\end{figure}
-
-\noindent Tout comme précédemment on prépare nos matrices et on utilise les fonctions implémentés, on trace ensuite notre graphique de fonction de coût (voir Fig. \ref{fig:cout_MLM}), en adaptant cette fois-ci nos paramètres \textit{alpha} et \textit{n\_iteration}.\\
-
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=\textwidth]{Rapport/images/cout_MLM.png}
-    \caption{Représentation de l'évolution des résultats de la fonctions de coût au fur et à mesure des itérations}
-    \label{fig:cout_MLM}
-\end{figure}
-
-\noindent Il est possible de constater par cette représentation que nous avons commencer à atteindre un plateau autour de la 1000ème itération. Après évaluation de notre modèle avec le coefficient de détermination on obtient un $R^{2}$ est de \textbf{0.64}. Au vu de ce résultat, on peut envisager que notre modèle n'est pas très bien adapter à ce jeu de données.
-
-\subsection{Modèle polynomiale}
-
-\subsubsection{Jeu de données salaire}
-
-Pour un modèle polynomiale nous pouvons également utilisé nos fonctions. Ici le DataSet utilisé est \textit{Position\_Salaries.csv}. Comme pour les utilisations précédentes on prépare nos matrices, et l'on adapte nos paramètres \textit{alpha} et \textit{n\_iteration}. On représente ensuite la fonction de coût (voir Fig. \ref{fig:cout_MLP}).\\
-
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=\textwidth]{Rapport/images/cout_MLP.png}
-    \caption{Représentation de l'évolution des résultats de la fonctions de coût au fur et à mesure des itérations.}
-    \label{fig:cout_MLP}
-\end{figure}
-
-Pour ce DataSet on constate que l'on commence à atteindre un plateau autour de la 1500ème itération. Nous avons également tracer l'évolution du modèle en représentant les modèles obtenues toutes les 500 itérations (voir Fig. \ref{fig:evo_MLP}). L'évaluation du modèle avec le coefficient de détermination nous a donné un $R^{2}$ est de \textbf{0.81}. On peut considérer que notre modèle n'est pas le plus optimal, mais son résultat n'est pas non plus mauvais.
-
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=\textwidth]{Rapport/images/evo_MLP.png}
-    \caption{Représentation de l'évolution du modèle toutes les 500 itérations.}
-    \label{fig:evo_MLP}
-\end{figure}
-
-\subsubsection{Jeu de données vin}
-
-On réalise les mêmes étapes que les précédentes sur le jeu de données \textit{qualite-vin-rouge.csv}. On réalise une corrélation pour identifier la variable déscriptive la plus corrélé avec notre target (\textit{"qualité"}). On établis nos différentes matrices, et on lance l'estimation de notre modèle. Il est possible de constater sur la courbe de fonction coût (voir Fig. \ref{fig:cout_MLP2}), qu'un plateau est atteint autour de la 500ème itération.\\
-
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=\textwidth]{Rapport/images/cout_MLP2.png}
-    \caption{Représentation de l'évolution des résultats de la fonctions de coût au fur et à mesure des itérations.}
-    \label{fig:cout_MLP2}
-\end{figure}
-
-\noindent Pour l'évaluation de modèle on a eu pour le coefficient de détermination \textbf{0.23}, et pour l'erreur quadratique moyenne \textbf{0.5}. Au vu de ces valeurs notre modèle n'est pas fiable.\\
-
-\noindent En représentant notre modèle sur les données (voir Fig. \ref{fig:modele_mlp2}),on constate que notre jeu de données correspond à de la catégorisation. Notre approche n'est donc pas approprié à ce type de données, il faudrait peut-être réfléchir à une autre méthode.
-
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=\textwidth]{Rapport/images/modele_MLP2.png}
-    \caption{Représentation du modèle estimé.}
-    \label{fig:modele_mlp2}
+    \includegraphics[width=\textwidth]{images/k_estimation_minkowki.png}
+    \caption{Évaluation de l'\textit{accuracy} du modèle from scratch en fonction du nombre de \textit{k}, pour différentes valeurs de \textit{p}}
+    \label{fig:KNN_min}
 \end{figure}
 
 \newpage
 
-\section{Comparaison des résultats}
+\subsection{KNN avec sklearn}
 
-\subsection{Modèle simple}
-
-\begin{figure}[!htbp]
-    \centering
-    \begin{subfigure}[b]{0.49\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{Rapport/images/modele_LS.png}
-         \caption{Fonction implémentée}
-        \label{fig:modele_LS}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.5\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{Rapport/images/modele_SLLS.png}
-         \caption{ScikitLearn}
-        \label{fig:modele_SLLS}
-    \end{subfigure}
-    \caption{Comparaison des modèles obtenu par la fonction de régression Linéaire implémenter manuellement (a) et celle de de ScikitLearn (b)}
-\end{figure}
-
-
-\subsection{Modèle polynomiale - \textit{Position\_Salaries.csv}}
+Les mêmes opérations, ainsi que les même jeu de données,  ont été utiliser pour entraîner le modèle KNN de \textbf{sklearn}. Dans un premier temps la détermination des meilleurs hyperparamètres a été réalisé visuellement comme pour le modèle from skratch. D'après les résultats obtenus paramètres permettant d'obtenir la meilleur \textit{accuracy} (83\%) sont, la métrique \textit{manhattan} et une valeur de k de 10.\\
 
 \begin{figure}[!htbp]
     \centering
-    \begin{subfigure}[b]{0.49\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{Rapport/images/modele_MLP.png}
-         \caption{Fonction implémentée}
-        \label{fig:modele_LP1}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.5\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{Rapport/images/modele_SLLP1.png}
-         \caption{ScikitLearn}
-        \label{fig:modele_SLLP1}
-    \end{subfigure}
-    \caption{Comparaison des modèles obtenu par la fonction de régression Linéaire implémenter manuellement (a) et celle de de ScikitLearn (b)}
+    \includegraphics[width=\textwidth]{images/k_estimation_sklearn.png}
+    \caption{Évaluation de l'\textit{accuracy} du modèle from scratch en fonction du nombre de \textit{k}, pour les trois méthodes de calcul de distance.}
+    \label{fig:KNN_sklearn}
 \end{figure}
 
-\subsection{Modèle polynomiale - \textit{qualite-vin-rouge.csv}}
+Une autre façon d'estimer les meilleurs paramètres est d'utilisé la méthode de \textit{Grid-Search}, combiné avec la méthode \textit{K-fold}, grâce à la fonction \textit{GridSearchCV()}. Cela permet de tester les différentes combinaison possible et de réalisé les test sur K sous ensembles de notre jeu d'entraînement, afin d'éviter le sur-apprentissage. Le résultat obtenus par cette méthode est le même que le précèdent, la métrique \textit{manhattan} et un \textit{k=10}.
 
-\begin{figure}[!htbp]
-    \centering
-    \begin{subfigure}[b]{0.49\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{Rapport/images/modele_MLP2.png}
-         \caption{Fonction implémentée}
-        \label{fig:modele_LP1}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.5\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{Rapport/images/modele_SLP2.png}
-         \caption{ScikitLearn}
-        \label{fig:modele_SLLP1}
-    \end{subfigure}
-    \caption{Comparaison des modèles obtenu par la fonction de régression Linéaire implémenter manuellement (a) et celle de de ScikitLearn (b)}
-\end{figure}
-
-\newpage
-
-\subsection{Récapitulatif des évaluations des modèles}
-
-Le tableau ci-dessous regroupe les résultats obtenus lors des évaluations des différents modèles avec le coefficient de détermination et l'erreur quadratique moyenne. Les valeurs obtenus nous montre qu'il n'y a que très peu de différence entre l'utilisation des fonctions de Scikit Learn et celles que nous avons implémenté manuellement. Sauf pour le modèle polynomiale basé sur le DataSet \textit{Position\_Salaries.csv}, où l'on observe un meilleur $R^{2}$ pour la fonction de Scikit Learn. Cela pourrait peut-être s'expliquer par le fait que les paramètres utilisé dans notre fonction ne correspondait pas à ceux utilisé par défaut dans Scikit Learn.\\
-
-\begin{table}[!htbp]
-\begin{tabular}{l|cc|cc|}
-\cline{2-5}
-                                                        & \multicolumn{2}{l|}{\textbf{Fonction manuelles}}     & \multicolumn{2}{l|}{\textbf{Fonction Scikit Learn}}  \\ \cline{2-5} 
-                                                        & \multicolumn{1}{c|}{\textbf{$R^{2}$}} & \textbf{MSE} & \multicolumn{1}{c|}{\textbf{$R^{2}$}} & \textbf{MSE} \\ \hline
-\multicolumn{1}{|l|}{\textbf{Modèle linéaire simple}}   & \multicolumn{1}{c|}{0.97}             & -            & \multicolumn{1}{c|}{0.97}             & -            \\ \hline
-\multicolumn{1}{|l|}{\textbf{Modèle linéaire multiple}} & \multicolumn{1}{c|}{0.64}             & 0.36         & \multicolumn{1}{c|}{0.64}             & 0.36         \\ \hline
-\multicolumn{1}{|l|}{\textbf{Modèle polynomiale 1}}     & \multicolumn{1}{c|}{0.81}             & $1.6e^{10}$  & \multicolumn{1}{c|}{0.92}             & $6.8e^{9}$   \\ \hline
-\multicolumn{1}{|l|}{\textbf{Modèle polynomiale 2}}     & \multicolumn{1}{c|}{0.23}             & 0.50         & \multicolumn{1}{c|}{0.23}             & 0.50         \\ \hline
-\end{tabular}
-\caption{Tableau de comparaison des valeurs de $R^{2}$ et de MSE obtenue par les modèles estimés par les fonctions implémenter manuellement, et les modèles obtenus par l'utilisation de Scikit Learn}
-\label{tab:comparatif}
-\end{table}
-
-Pour conclure cette comparaison, on pourrait dire que le fait d'implémenter une fonction soit même nous offre une meilleur maîtrise de son utilisation. Cependant, on peut considérer que les fonctions Scikit Learn ont sûrement était plus optimisé que les nôtres. Avec des résultats aussi similaire autant utiliser les fonctions déjà existantes qui nous permettant même dans certain cas d'obtenir de meilleurs résultats.
 
 \section{Conclusion}
 
-En conclusion ce projet m'a permis de revoir des notions que je connaissais déjà, je n'ai donc rien appris de nouveaux, cependant cela m'a permit de consolider mes connaissances. Aucunes difficultés à signaler.
+Les résultats obtenu par les modèles entraînés assez bon, avec une \textit{accuracy} dépassant les 80\% pour les deux modèles.\\
+
+D'après notre étude il semblerait que l'on obtient les meilleurs performances de prédiction à partir du modèle KNN développé manuellement. Cela pourrait être expliqué par le fait que plusieurs paramètre du modèle KNN de \textbf{sklearn}, on été laissé par défaut.\\
+
+Cependant pour ce cas d'étude il serait préférable de conservé la classification par le biais du score, pour ce faire il faudrait intervenir directement de le code du questionnaire afin de restreindre les réponses des utilisateurs.
+
 
 \end{document}
