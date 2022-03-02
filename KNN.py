@@ -36,21 +36,21 @@ class KNN:
                 return np.array(d)
         elif self.__metric.lower() == 'manhattan':
             if len(X_test) == 1:
-                d = np.sqrt(np.sum(abs(self.__X_train-X_test)))
+                d = np.sqrt(np.sum(abs(self.__X_train-X_test), axis=1))
                 return np.array(d)
             else:
                 d = []
                 for x in X_test:
-                    d.append(np.sqrt(np.sum(abs(self.__X_train-X_test))))
-                return d
+                    d.append(np.sqrt(np.sum(abs(self.__X_train-x), axis=1)))
+                return np.array(d)
         elif self.__metric.lower() == 'minkowski':
             if len(X_test) == 1:
-                d = pow(np.sum(abs(self.__X_train-X_test)**self.__p), 1/self.__p)
+                d = pow(np.sum(abs(self.__X_train-X_test)**self.__p, axis=1), 1/self.__p)
                 return np.array(d)
             else:
                 d = []
                 for x in X_test:
-                    d.append(pow(np.sum(abs(self.__X_train-X_test)**self.__p), 1/self.__p))
+                    d.append(pow(np.sum(abs(self.__X_train-x)**self.__p, axis=1), 1/self.__p))
                 return np.array(d)
         else:
             raise ValueError(f"metric prend en uniquement comme valeur 'euclidean', 'manhattan', ou 'minkowski' (saisie {self.__metric})")
