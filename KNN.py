@@ -57,6 +57,14 @@ class KNN:
 
 
     def target_format(self, Y_train):
+        '''
+        La fonction target_format() permet d'extraire les différents labels composants la matrice cible, et de les encodés numériquement.
+        
+        Paramètres
+        ---------------------
+        Y_train : *type : array*, matrice contenant les labels que le modèle cherchera à predire
+        '''
+
         self.__label = Y_train.sort_values().unique()
 
         cpt = 1
@@ -70,13 +78,37 @@ class KNN:
 
 
     def train(self, X_train, label_train, **kwargs):
-        self.__p = kwargs.get('p', 2)
-        self.__metric = kwargs.get("metric", "euclidiean")
-        self.__label_train = self.target_format(label_train) # Formatage des labels
-        self.__X_train = X_train
+        '''
+        La fonction train() permet de remplir les variables d'instance, cela peut-être comparer à l'entrainement du modèle.
+        
+        Paramètres
+        ---------------------
+        X_train : type : array, matrice contenant les données d'entraînement qui serviront pour estimer les prédictions réalisé. 
+        
+        label_train : *type : array*, matrice contenant les labels que le modèle cherchera à predire
+
+        **kwargs :
+        - metric : {'Euclidean', 'Manhattan', 'Minkowski'}
+            methode à utiliser pour calculer la distance 
+        - **p** : valeur de puissance pour la méthode 'Minkowski    
+        '''
+
+        self.__p = kwargs.get('p', 2) # récupération de p, si vide 2 par défaut
+        self.__metric = kwargs.get("metric", "euclidiean") # récupération de la métrique choisie, "euclidean" par défaut
+        self.__label_train = self.target_format(label_train) # Formatage des labels 
+        self.__X_train = X_train # Enregistrement des données d'entraînement
 
 
     def prediction(self, X_test, k=5):
+        '''
+        La fonction prediction() permet de prédir les targets d'un jeu de données test.
+        
+        Paramètres
+        ---------------------
+        X_test : type : array, matrice contenant les données de test à partir desquel seront faites les prédictions. 
+        
+        k : le nombre de voisin à utiliser pour la comparaison de distance. Par défaut le k est de 5.   
+        '''
         d = self.distance(X_test = X_test)
 
         if d.ndim == 1:
@@ -103,7 +135,18 @@ class KNN:
         return y_pred
 
     def accuracy(self, y_test, y_pred, **kwargs):
+        '''
+        La fonction accuracy() permet d'estimer l'accuracy du modèle.
         
+        Paramètres
+        ---------------------
+        y_test : type : array, les labels associés au données test. 
+        
+        y_pred : *type : array*, les labels prédits par le model
+
+        **kwargs :
+        - resume : type : boolean, défaut = False, permet d'afficher dans la console un résumé des estimation de  performances.
+        '''
         y_test = y_test.replace(self.__format_model).values
         self.__confusion_matrix = confusion_matrix(y_test, y_pred)
         error_rate = (1 - np.trace(self.__confusion_matrix)/np.sum(self.__confusion_matrix))*100
