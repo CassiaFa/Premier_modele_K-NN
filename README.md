@@ -18,7 +18,7 @@ Le calcul du KNN from scratch se faire à l'aide de la class KNN contenu dans le
 
 ### Utilisation
 
-/!\ le modèle ne fonctionne qu'avec des *array* composé d'*interger* !
+/!\ le modèle ne fonctionne qu'avec des *array* composé d'*integer* !
 
 1. Importer la class **KNN** : `from KNN import *`
 2. Instancier la class : `modele = KNN()`

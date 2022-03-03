@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
+from joblib import load
 
 class Question:
      def __init__(self, prompt):
@@ -53,6 +54,10 @@ questions = [
 ]
 
 def run_quiz(questions, Interpretation):
+    #chargement des modèles
+     modele_scratch = load('./model_saved/KNN_scratch.joblib')
+     modele_sklearn = load('./model_saved/KNN_sklearn.joblib')
+
      score = 0
      Data = []
      for question in questions:
@@ -82,32 +87,39 @@ def run_quiz(questions, Interpretation):
          print(Interpretation[2])
      print('-----------------------------------------\n')
       
-     Data.append(score)
-     Data.append(Label)
-     Data = np.array(Data)
-     name_generator = chr(np.random.randint(500))+chr(np.random.randint(500))+chr(np.random.randint(500))
-     
-     d = {'Q1' : Data[0],
-             'Q2' : Data[1],
-             'Q3' : Data[2],
-             'Q4' : Data[3],
-             'Q5' : Data[4],
-             'Q6' : Data[5],
-             'Q7' : Data[6],
-             'Q8' : Data[7],
-             'Q9' : Data[8],
-             'Q10' : Data[9],
-             'Score' : Data[10],
-             'Interpretation' : Data[11],}
+     Data = pd.DataFrame(Data)
+     Data = Data.replace({'a': 1, 'b' : 2, 'c' : 3}).astype("int64").values.T
 
-     if any(File.endswith(".csv") for File in os.listdir('./Dataset/')):
-        df = pd.read_csv('./DataSet/'+os.listdir('./DataSet/')[0])
-        df = df.append(d, ignore_index=True)
-        df.to_csv('./DataSet/'+os.listdir('./DataSet/')[0], index=False)
-     else:
-        df = pd.DataFrame(d, index = ['1'])
-        df.to_csv('./DataSet/DataSet__'+name_generator+'__.csv', index=False) 
-     return print(df)
+     pred_scratch = modele_scratch.prediction(Data, k=4)
+     pred_sklearn = modele_sklearn.predict(Data)
+    #  Data.append(score)
+    #  Data.append(Label)
+    #  Data = np.array(Data)
+    #  name_generator = chr(np.random.randint(500))+chr(np.random.randint(500))+chr(np.random.randint(500))
+     
+    #  d = {'Q1' : Data[0],
+    #          'Q2' : Data[1],
+    #          'Q3' : Data[2],
+    #          'Q4' : Data[3],
+    #          'Q5' : Data[4],
+    #          'Q6' : Data[5],
+    #          'Q7' : Data[6],
+    #          'Q8' : Data[7],
+    #          'Q9' : Data[8],
+    #          'Q10' : Data[9],
+    #          'Score' : Data[10],
+    #          'Interpretation' : Data[11],}
+
+    #  if any(File.endswith(".csv") for File in os.listdir('./Dataset/')):
+    #     df = pd.read_csv('./DataSet/'+os.listdir('./DataSet/')[0])
+    #     df = df.append(d, ignore_index=True)
+    #     df.to_csv('./DataSet/'+os.listdir('./DataSet/')[0], index=False)
+    #  else:
+    #     df = pd.DataFrame(d, index = ['1'])
+    #     df.to_csv('./DataSet/DataSet__'+name_generator+'__.csv', index=False) 
+    #  return print(df)
+
+     return print(f"Prédicictions \nPar score : {Label} \nModèle scratch : {pred_scratch} \nModèle sklearn : {pred_sklearn}")
         
 run_quiz(questions, Interpretation)
 
